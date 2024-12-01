@@ -1,25 +1,21 @@
-from db_connection import db
+from db import db
 
-# User schema
-user_collection = db['User']
-def create_user(user_id, email, delivery_address):
-    user = {
-        "user_id": user_id,
-        "email": email,
-        "delivery_address": delivery_address
-    }
-    user_collection.insert_one(user)
+users_collection = db['User']
 
-# Order schema
+# Create a new user
+def create_user(user_data):
+    result = users_collection.insert_one(user_data)
+    return str(result.inserted_id)
 
-"""order_collection = db['orders']
-def create_order(order_id, items, email, delivery_address, status="under process"):
-    order = {
-        "order_id": order_id,
-        "items": items,
-        "email": email,
-        "delivery_address": delivery_address,
-        "status": status
-    }
-    order_collection.insert_one(order)
-"""
+# Get all users
+def get_all_users():
+    return list(users_collection.find({}, {"_id": 0}))
+
+# Update user details
+def update_user(user_id, updates):
+    result = users_collection.update_one({"user_id": user_id}, {"$set": updates})
+    return result.matched_count > 0
+
+# Get user by ID
+def get_user_by_id(user_id):
+    return users_collection.find_one({"user_id": user_id}, {"_id": 0})
